@@ -9,13 +9,20 @@
 </head>
 
 <body>
-    <h1>Прогноз погоды</h1>
+    <nav>
+        <a href="#/" id="homeLink">Главная</a>
+        <a href="#/about" id="aboutLink">О приложении</a>
+    </nav>
 
-    <button id="weatherbutton">Получить погоду</button>
+    <form id="cityForm">
+        <input type="text" id="cityInput" placeholder="Введите город">
+        <button type="submit">Посмотреть погоду</button>
+    </form>
 
-    <div id="weatherInfo"></div>
+    <div id="content"></div>
 
-    <script type="module" src="./script.js"></script>
+    <script type="module" src="router.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>

@@ -1,43 +1,59 @@
-import EventBus from "./eventBus.js";
-import LocationService from "./services/LocationService.js";
-import WeatherService from "./services/WeatherService.js";
-import StorageService from "./services/StorageService.js";
+import { navigate } from './router.js';
+import { StorageService, WeatherService } from './services/index.js';
 
-const API_KEY = "ebee27a19798f9f0e1aa8449bd035783";
+const form = document.getElementById('cityForm');
+const input = document.getElementById('cityInput');
 
-const weatherService = new WeatherService(API_KEY);
-const locationService = new LocationService();
-const storageService = new StorageService();
-
-const button = document.getElementById("weatherbutton");
-
-EventBus.on("weatherUpdated", (weather) => {
-    storageService.setItem("lastWeather", weather);
-
-    const weatherInfo = document.getElementById("weatherInfo");
-    weatherInfo.innerHTML = `
-        <p>Город: ${weather.name}</p>
-        <p>Температура: ${weather.main.temp} °C</p>
-        <p>Погода: ${weather.weather[0].description}</p>
-        <p>Влажность: ${weather.main.humidity}%</p>
-    `;
+form.addEventListener('submit', e => {
+    e.preventDefault();
+    const city = input.value.trim();
+    if (city) navigate(`/city/${city}`);
 });
 
-EventBus.on("weatherError", (error) => {
-    const weatherInfo = document.getElementById("weatherInfo");
-    weatherInfo.innerHTML = `<p style="color:red;">Ошибка: ${error.message}</p>`;
-});
+export function showHome() {
+    const content = document.getElementById('content');
+    content.innerHTML = '<h1>Главная страница</h1><p>Введите город для просмотра погоды</p>';
+}
 
-button.addEventListener("click", async () => {
-    const weatherInfo = document.getElementById("weatherInfo");
-    weatherInfo.innerHTML = "Загрузка...";
-    try {
-        const position = await locationService.getCurrentPosition();
-        const { latitude, longitude } = position.coords;
+export function showCityWeather(cityName) {
+    const content = document.getElementById('content');
+    content.innerHTML = `<h1>Погода в ${cityName}</h1>
+    <ul id="historyList"></ul>`;
 
-        await weatherService.getWeatherByCoords(latitude, longitude);
-    } catch (error) {
-        console.error(error);
-        weatherInfo.innerHTML = `<p style="color:red;">Ошибка: ${error.message}</p>`;
-    }
-});
+    saveCityHistory(cityName);
+    renderHistory();
+}
+
+export function showAbout() {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+    <h1>О приложении</h1>
+    <p>Приложение показывает погоду для выбранного города.</p>`;
+}
+
+function saveCityHistory(cityName) {
+    let history = JSON.parse(localStorage.getItem('history') || '[]');
+    if (!history.includes(cityName)) history.push(cityName);
+    localStorage.setItem('history', JSON.stringify(history));
+}
+
+function renderHistory() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+
+    historyList.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+
+    history.forEach(city => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#/city/${city}`;
+        a.textContent = city;
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            navigate(`/city/${city}`);
+        });
+        li.appendChild(a);
+        historyList.appendChild(li);
+    });
+}

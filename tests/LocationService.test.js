@@ -1,7 +1,7 @@
-import LocationService from "../services/LocationService.js";
+import LocationService from '../services/LocationService.js';
 
-describe("LocationService", () => {
-    it("возвращает координаты", async () => {
+describe('LocationService', () => {
+    it('возвращает координаты', async () => {
         const service = new LocationService();
         navigator.geolocation = {
             getCurrentPosition: jest.fn(cb => cb({ coords: { latitude: 10, longitude: 20 } }))
