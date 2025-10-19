@@ -1,11 +1,20 @@
 module.exports = {
-    roots: ['<rootDir>/src'],
+    roots: ['<rootDir>'],
+
     transform: {
         '^.+\\.(js|jsx)$': 'babel-jest',
     },
-    testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+
+    testMatch: [
+        '**/tests/**/*.[jt]s?(x)',
+        '**/?(*.)+(spec|test).[jt]s?(x)'
+    ],
+
     moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
     testPathIgnorePatterns: ['/node_modules/', '/public/'],
-    setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
-    testEnvironment: 'jsdom'
+    //setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
+    testEnvironment: 'jest-environment-jsdom',
+    collectCoverage: true,
+    coverageDirectory: "coverage",
+    coverageReporters: ["text", "lcov"]
 };
