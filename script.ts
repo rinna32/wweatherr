@@ -1,10 +1,12 @@
-import { navigate } from './router.js';
-import { StorageService, WeatherService } from './services/index.js';
+import { navigate } from './router';
+import StorageService from './services/StorageService';
+import WeatherService from './services/WeatherService';
 
-const form = document.getElementById('cityForm');
-const input = document.getElementById('cityInput');
 
-form.addEventListener('submit', e => {
+const form = document.getElementById('cityForm') as HTMLFormElement;
+const input = document.getElementById('cityInput') as HTMLInputElement;
+
+form.addEventListener('submit', (e: Event) => {
     e.preventDefault();
     const city = input.value.trim();
     if (city) navigate(`/city/${city}`);
@@ -12,13 +14,16 @@ form.addEventListener('submit', e => {
 
 export function showHome() {
     const content = document.getElementById('content');
+    if (!content) return;
     content.innerHTML = '<h1>Главная страница</h1><p>Введите город для просмотра погоды</p>';
 }
 
-export function showCityWeather(cityName) {
+export function showCityWeather(cityName: string) {
     const content = document.getElementById('content');
+    if (!content) return;
+
     content.innerHTML = `<h1>Погода в ${cityName}</h1>
-    <ul id="historyList"></ul>`;
+        <ul id="historyList"></ul>`;
 
     saveCityHistory(cityName);
     renderHistory();
@@ -26,13 +31,16 @@ export function showCityWeather(cityName) {
 
 export function showAbout() {
     const content = document.getElementById('content');
+    if (!content) return;
+
     content.innerHTML = `
-    <h1>О приложении</h1>
-    <p>Приложение показывает погоду для выбранного города.</p>`;
+        <h1>О приложении</h1>
+        <p>Приложение показывает погоду для выбранного города</p>
+    `;
 }
 
-function saveCityHistory(cityName) {
-    let history = JSON.parse(localStorage.getItem('history') || '[]');
+function saveCityHistory(cityName: string) {
+    const history: string[] = JSON.parse(localStorage.getItem('history') || '[]');
     if (!history.includes(cityName)) history.push(cityName);
     localStorage.setItem('history', JSON.stringify(history));
 }
@@ -41,8 +49,7 @@ function renderHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
-    historyList.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    const history: string[] = JSON.parse(localStorage.getItem('history') || '[]');
 
     history.forEach(city => {
         const li = document.createElement('li');

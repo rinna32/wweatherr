@@ -1,9 +1,9 @@
 import EventBus from '../eventBus';
 
 export default class LocationService {
-    getCurrentPosition() {
+    getCurrentPosition(): Promise<GeolocationPosition> {
         return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) reject(new Error('Геолокация не поддерживается'));
+            if (!navigator.geolocation) return reject(new Error('Геолокация не поддерживается'));
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
