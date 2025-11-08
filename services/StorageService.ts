@@ -1,20 +1,34 @@
-import EventBus from '../eventBus';
+import { WeatherData } from './WeatherService';
 
-export default class LocationService {
-    getCurrentPosition(): Promise<GeolocationPosition> {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) return reject(new Error('Геолокация не найдена'));
+type EventMap = {
+    locationObtained: GeolocationPosition;
+    locationError: GeolocationPositionError;
+    weatherUpdated: WeatherData;
+    storageUpdated: { key: string; value: unknown };
+    storageRemoved: string;
+    storageCleared: undefined;
+};
 
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve(position);
-                    EventBus.emit('locationObtained', position);
-                },
-                (error) => {
-                    reject(error);
-                    EventBus.emit('locationError', error);
-                }
-            );
-        });
+type EventKey = keyof EventMap;
+type EventCallback<K extends EventKey> = (payload: EventMap[K]) => void;
+
+export default class EventBus {
+    private static events: Partial<Record<EventKey, EventCallback<any>[]>> = {};
+
+    static on<K extends EventKey>(event: K, callback: EventCallback<K>): void {
+        const callbacks = (this.events[event] ??= [] as EventCallback<K>[]);
+        callbacks.push(callback);
+    }
+
+    static off<K extends EventKey>(event: K, callback: EventCallback<K>): void {
+        const callbacks = this.events[event] as EventCallback<K>[] | undefined;
+        if (!callbacks) return;
+        this.events[event] = callbacks.filter(cb => cb !== callback);
+    }
+
+    static emit<K extends EventKey>(event: K, payload: EventMap[K]): void {
+        const callbacks = this.events[event] as EventCallback<K>[] | undefined;
+        if (!callbacks) return;
+        callbacks.forEach(cb => cb(payload));
     }
 }
